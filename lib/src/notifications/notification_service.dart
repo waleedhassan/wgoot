@@ -6,7 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 /// Name of a raw resource under `android/app/src/main/res/raw` used as the
 /// adhan call. Leave `null` to fall back to the system notification sound.
-const String? kAdhanRawResource = null;
+const String? kAdhanRawResource = 'adhan';
 
 RawResourceAndroidNotificationSound? _adhanSound() {
   final String? resource = kAdhanRawResource;
