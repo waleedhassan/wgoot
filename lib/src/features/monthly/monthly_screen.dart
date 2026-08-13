@@ -49,7 +49,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
               children: <Widget>[
                 IconButton(
                   onPressed: () => setState(() => _monthOffset--),
-                  icon: const Icon(Icons.chevron_right_rounded),
+                  icon: const Icon(Icons.chevron_left_rounded),
                   tooltip: 'الشهر السابق',
                 ),
                 Expanded(
@@ -71,7 +71,7 @@ class _MonthlyScreenState extends State<MonthlyScreen> {
                 ),
                 IconButton(
                   onPressed: () => setState(() => _monthOffset++),
-                  icon: const Icon(Icons.chevron_left_rounded),
+                  icon: const Icon(Icons.chevron_right_rounded),
                   tooltip: 'الشهر التالي',
                 ),
               ],

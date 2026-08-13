@@ -515,7 +515,7 @@ class _Tile extends StatelessWidget {
           trailing ??
           (onTap == null
               ? null
-              : const Icon(Icons.chevron_left_rounded, size: 22)),
+              : const Icon(Icons.chevron_right_rounded, size: 22)),
       shape: const RoundedRectangleBorder(),
     );
   }
