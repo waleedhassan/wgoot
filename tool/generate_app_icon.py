@@ -79,6 +79,20 @@ def foreground(ratio, size=RENDER, color=CREAM + (255,), shadow=True):
     return Image.alpha_composite(layer, glyph)
 
 
+def status_icon(size, padding=0.08, render=RENDER):
+    glyph = _glyph(render, 0.6, (255, 255, 255, 255))
+    glyph = glyph.crop(glyph.getbbox())
+    box = size * (1 - 2 * padding)
+    scale = box / max(glyph.size)
+    glyph = glyph.resize(
+        (max(1, round(glyph.size[0] * scale)), max(1, round(glyph.size[1] * scale))),
+        Image.LANCZOS,
+    )
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    canvas.paste(glyph, ((size - glyph.size[0]) // 2, (size - glyph.size[1]) // 2))
+    return canvas
+
+
 def icon(ratio=0.5, size=RENDER, round_mask=False):
     img = Image.alpha_composite(background(size), foreground(ratio, size))
     if round_mask:
@@ -130,6 +144,19 @@ def write_android():
         save(bg, os.path.join(folder, "ic_launcher_background.png"), int(108 * scale), flatten=True)
         save(fg, os.path.join(folder, "ic_launcher_foreground.png"), int(108 * scale))
         save(mono, os.path.join(folder, "ic_launcher_monochrome.png"), int(108 * scale))
+
+    for density, scale in ANDROID_DENSITIES.items():
+        folder = os.path.join(res, "drawable-" + density)
+        os.makedirs(folder, exist_ok=True)
+        status_icon(int(24 * scale)).save(
+            os.path.join(folder, "ic_stat_wgoot.png")
+        )
+        save(
+            square,
+            os.path.join(folder, "ic_notification_large.png"),
+            int(64 * scale),
+            flatten=True,
+        )
 
     anydpi = os.path.join(res, "mipmap-anydpi-v26")
     os.makedirs(anydpi, exist_ok=True)

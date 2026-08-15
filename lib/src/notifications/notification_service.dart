@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
@@ -14,6 +15,10 @@ RawResourceAndroidNotificationSound? _adhanSound() {
       ? null
       : RawResourceAndroidNotificationSound(resource);
 }
+
+const String kAndroidSmallIcon = 'ic_stat_wgoot';
+const String kAndroidLargeIcon = 'ic_notification_large';
+const Color kNotificationAccent = Color(0xFF7E5130);
 
 class NotificationService {
   NotificationService({FlutterLocalNotificationsPlugin? plugin})
@@ -51,7 +56,7 @@ class NotificationService {
 
     await _plugin.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings(kAndroidSmallIcon),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -210,6 +215,9 @@ class NotificationService {
           android: AndroidNotificationDetails(
             channelId,
             channelName,
+            icon: kAndroidSmallIcon,
+            largeIcon: const DrawableResourceAndroidBitmap(kAndroidLargeIcon),
+            color: kNotificationAccent,
             importance: isReminder ? Importance.high : Importance.max,
             priority: isReminder ? Priority.high : Priority.max,
             playSound: withSound || isReminder,
@@ -243,7 +251,13 @@ class NotificationService {
           body,
           when,
           NotificationDetails(
-            android: AndroidNotificationDetails(channelId, channelName),
+            android: AndroidNotificationDetails(
+              channelId,
+              channelName,
+              icon: kAndroidSmallIcon,
+              largeIcon: const DrawableResourceAndroidBitmap(kAndroidLargeIcon),
+              color: kNotificationAccent,
+            ),
           ),
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         );
