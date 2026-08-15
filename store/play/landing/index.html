@@ -713,10 +713,7 @@ footer.site {
   var root = document.documentElement;
   var saved = null;
   try { saved = localStorage.getItem("wgoot-lang"); } catch (e) {}
-  if (!saved) {
-    saved = (navigator.language || "ar").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
-  }
-  apply(saved);
+  apply(saved === "en" ? "en" : "ar");
 
   document.getElementById("langToggle").addEventListener("click", function () {
     var next = root.getAttribute("data-lang") === "ar" ? "en" : "ar";
