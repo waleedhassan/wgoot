@@ -26,6 +26,10 @@ store/play/
     feature-graphic-1024x500.png
     screenshots/          raw captures and processed output
     README.md             what Play requires of each asset
+  landing/
+    index.html            the app's web page, Arabic and English
+    assets/               icon, screenshots and fonts it needs
+    README.md             how to deploy it, and what to keep in sync
 ```
 
 ## Where each file is used in Play Console
@@ -34,6 +38,7 @@ store/play/
 | --- | --- |
 | Grow → Store presence → Main store listing | `listing/ar.md`, `listing/en-US.md`, `graphics/` |
 | Release → Production → release notes | `release-notes/<version>-<locale>.txt` |
+| Grow → Store presence → Main store listing → Website | the URL you publish `landing/` at |
 | Policy → App content → Privacy policy | the URL you publish `policy/privacy-policy.html` at |
 | Policy → App content → Data safety | `policy/data-safety.md` |
 | Policy → App content → Content ratings | `policy/content-rating.md` |
@@ -61,7 +66,7 @@ placeholders in the policy documents:
 - **Privacy policy URL** — where you host the page. Two options are in
   `release-process.md` §2.
 - **Public contact email** — shown on the listing to anyone.
-- **Website** — optional.
+- **Website** — optional; `landing/` is a finished page if you want one.
 
 Everything else is filled in.
 

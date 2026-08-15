@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وَقُوتُ الصَّلاة — مواقيت الصلاة والأذان والتاريخ الهجري | Wqoot</title>
+<meta name="description" content="تطبيق عربي لمواقيت الصلوات الخمس والتاريخ الهجري وتنبيه الأذان، محسوبة على جهازك بدون إنترنت وبدون حساب وبدون تتبّع.">
+<meta name="theme-color" content="#7e5130">
+<link rel="icon" href="assets/icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="وَقُوتُ الصَّلاة — مواقيت الصلاة والأذان والتاريخ الهجري">
+<meta property="og:description" content="مواقيت الصلوات الخمس والتاريخ الهجري وتنبيه الأذان، محسوبة فلكياً على جهازك. بلا إنترنت، بلا حساب، بلا تتبّع.">
+<meta property="og:image" content="assets/feature.png">
+<style>
+@font-face {
+  font-family: Amiri;
+  src: url("assets/fonts/Amiri-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Amiri;
+  src: url("assets/fonts/Amiri-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: PlexArabic;
+  src: url("assets/fonts/IBMPlexSansArabic-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: PlexArabic;
+  src: url("assets/fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --bg: #faf6ef;
+  --bg-alt: #f3ece0;
+  --card: #ffffff;
+  --card-2: #f8f2e9;
+  --ink: #241a12;
+  --muted: #6b5a4a;
+  --accent: #7e5130;
+  --accent-ink: #ffffff;
+  --gold: #b08a2e;
+  --rule: #e6dccd;
+  --hero-start: #7e5130;
+  --hero-end: #4a2b16;
+  --shadow: 0 24px 60px -32px rgba(58, 34, 16, .55);
+  --shadow-sm: 0 10px 30px -20px rgba(58, 34, 16, .6);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17110c;
+    --bg-alt: #1c1510;
+    --card: #211812;
+    --card-2: #1b1511;
+    --ink: #f2e9dd;
+    --muted: #b8a48e;
+    --accent: #e0c177;
+    --accent-ink: #2a1508;
+    --gold: #e0c177;
+    --rule: #392a1e;
+    --hero-start: #3c2617;
+    --hero-end: #201310;
+    --shadow: 0 24px 60px -30px rgba(0, 0, 0, .8);
+    --shadow-sm: 0 10px 30px -18px rgba(0, 0, 0, .85);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html[data-lang="ar"] [lang="en"] { display: none; }
+html[data-lang="en"] [lang="ar"] { display: none; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: PlexArabic, system-ui, "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  width: min(1120px, 100% - 2.5rem);
+  margin-inline: auto;
+}
+
+.script {
+  font-family: Amiri, "Traditional Arabic", "Noto Naskh Arabic", serif;
+  line-height: 1.5;
+}
+
+a { color: var(--accent); }
+
+/* ---------- header ---------- */
+
+header.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.top-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .7rem 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ink);
+}
+.brand img { width: 34px; height: 34px; border-radius: 10px; }
+.brand .script { font-size: 1.25rem; }
+.top nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-inline-start: auto;
+  font-size: .92rem;
+}
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--accent); }
+.lang {
+  margin-inline-start: 1rem;
+  border: 1px solid var(--rule);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: .35rem .85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.lang:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 720px) { .top nav { display: none; } .lang { margin-inline-start: auto; } }
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--hero-start), var(--hero-end));
+  color: #f6ece0;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><g fill='%23ffffff' opacity='0.05'><rect x='34' y='34' width='60' height='60'/><rect x='34' y='34' width='60' height='60' transform='rotate(45 64 64)'/></g></svg>");
+  background-size: 128px 128px;
+}
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 4.5rem 0 4rem;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .82rem;
+  letter-spacing: .02em;
+  color: #f0d9ab;
+  border: 1px solid rgba(240, 217, 171, .35);
+  border-radius: 999px;
+  padding: .25rem .85rem;
+  margin-bottom: 1.4rem;
+}
+.hero h1 {
+  margin: 0 0 .6rem;
+  font-size: clamp(2.6rem, 6vw, 4rem);
+  font-weight: 700;
+  color: #fff;
+}
+.hero .lede {
+  margin: 0 0 1.1rem;
+  font-size: 1.08rem;
+  color: #e7d6c2;
+  max-width: 34rem;
+}
+.pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.8rem; }
+.pill {
+  font-size: .82rem;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  padding: .2rem .8rem;
+  color: #f3e6d5;
+}
+.cta { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: .8rem 1.4rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+}
+.btn-primary { background: #f6ece0; color: #4a2b16; }
+.btn-primary:hover { background: #fff; }
+.btn-ghost { border-color: rgba(246, 236, 224, .3); color: #f0e3d3; }
+.btn-ghost:hover { border-color: #f0e3d3; }
+.btn svg { flex: none; }
+.hero .fine { margin: 1.1rem 0 0; font-size: .84rem; color: #cbb49b; }
+
+.phones { position: relative; width: 262px; margin-inline: auto; }
+.phone {
+  border-radius: 30px;
+  border: 8px solid #1b120c;
+  background: #1b120c;
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .8);
+  overflow: hidden;
+  line-height: 0;
+}
+.phone img { display: block; width: 100%; height: auto; }
+.phone.front { width: 262px; position: relative; z-index: 2; }
+.phone.back {
+  width: 212px;
+  position: absolute;
+  inset-inline-end: -84px;
+  top: 46px;
+  z-index: 1;
+  opacity: .92;
+  transform: rotate(6deg);
+}
+html[dir="ltr"] .phone.back { transform: rotate(-6deg); }
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; padding: 3rem 0 2.5rem; gap: 2.5rem; }
+  .phone.back { display: none; }
+}
+
+/* ---------- stats ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border-block: 1px solid var(--rule);
+}
+.stat { background: var(--bg-alt); padding: 1.6rem 1rem; text-align: center; }
+.stat b {
+  display: block;
+  font-family: Amiri, serif;
+  font-size: 2rem;
+  line-height: 1.3;
+  color: var(--gold);
+}
+.stat span { font-size: .86rem; color: var(--muted); }
+@media (max-width: 700px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- sections ---------- */
+
+section.band { padding: 4.5rem 0; }
+section.band.tint { background: var(--bg-alt); border-block: 1px solid var(--rule); }
+
+.head { text-align: center; margin-bottom: 2.75rem; }
+.head h2 {
+  font-family: Amiri, serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  margin: 0 0 .4rem;
+}
+.head p { margin: 0 auto; max-width: 38rem; color: var(--muted); }
+
+.rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  margin: 0 auto 1.1rem;
+  width: 8rem;
+  color: var(--gold);
+}
+.rule::before, .rule::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+}
+.rule::before { background: linear-gradient(90deg, transparent, var(--rule)); }
+.rule::after { background: linear-gradient(270deg, transparent, var(--rule)); }
+.rule i { font-style: normal; font-size: .7rem; letter-spacing: .3em; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 1.1rem;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 1.5rem 1.35rem;
+  box-shadow: var(--shadow-sm);
+}
+.card .ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--card-2);
+  border: 1px solid var(--rule);
+  color: var(--gold);
+  margin-bottom: .9rem;
+}
+.card h3 { margin: 0 0 .35rem; font-size: 1.05rem; font-weight: 600; }
+.card p { margin: 0; font-size: .93rem; color: var(--muted); line-height: 1.8; }
+
+/* ---------- gallery ---------- */
+
+.shots {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: .5rem .25rem 1.5rem;
+  scroll-snap-type: x mandatory;
+}
+.shot { flex: none; width: 232px; scroll-snap-align: center; text-align: center; }
+.shot .phone { width: 100%; }
+.shot figcaption { margin-top: .8rem; font-size: .88rem; color: var(--muted); }
+
+/* ---------- quote ---------- */
+
+.quote {
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+.quote blockquote {
+  font-family: Amiri, serif;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  line-height: 1.9;
+  margin: 0 0 .9rem;
+}
+.quote cite { font-style: normal; font-size: .9rem; color: var(--muted); }
+
+/* ---------- privacy ---------- */
+
+.privacy {
+  background: linear-gradient(160deg, var(--hero-start), var(--hero-end));
+  color: #f4e9dc;
+  border-radius: 26px;
+  padding: 3rem 2.5rem;
+  box-shadow: var(--shadow);
+}
+.privacy h2 { font-family: Amiri, serif; font-size: 2rem; margin: 0 0 .5rem; color: #fff; }
+.privacy > p { color: #dcc7ae; max-width: 40rem; margin: 0 0 2rem; }
+.privacy ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem 2rem;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+.privacy li {
+  position: relative;
+  padding-inline-start: 1.7rem;
+  font-size: .95rem;
+  color: #ecdcc8;
+}
+.privacy li::before {
+  content: "◆";
+  position: absolute;
+  inset-inline-start: 0;
+  color: #e0c177;
+  font-size: .7rem;
+  top: .45rem;
+}
+@media (max-width: 620px) { .privacy { padding: 2rem 1.4rem; border-radius: 20px; } }
+
+/* ---------- note ---------- */
+
+.note {
+  border: 1px solid var(--rule);
+  border-inline-start: 3px solid var(--gold);
+  background: var(--card);
+  border-radius: 16px;
+  padding: 1.4rem 1.5rem;
+  max-width: 46rem;
+  margin: 3rem auto 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+.note strong { color: var(--ink); }
+
+/* ---------- footer ---------- */
+
+footer.site {
+  border-top: 1px solid var(--rule);
+  padding: 2.5rem 0 3.5rem;
+  background: var(--bg-alt);
+}
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.foot-links { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: .9rem; }
+.foot small { display: block; color: var(--muted); font-size: .82rem; line-height: 1.7; }
+.foot code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82em; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="#top">
+      <img src="assets/icon-512.png" alt="">
+      <span class="script" lang="ar">وَقُوتُ الصَّلاة</span>
+      <span class="script" lang="en">Wqoot</span>
+    </a>
+    <nav>
+      <a href="#features"><span lang="ar">المزايا</span><span lang="en">Features</span></a>
+      <a href="#screens"><span lang="ar">اللقطات</span><span lang="en">Screens</span></a>
+      <a href="#privacy"><span lang="ar">الخصوصية</span><span lang="en">Privacy</span></a>
+    </nav>
+    <button class="lang" id="langToggle" type="button">
+      <span lang="ar">English</span><span lang="en">العربية</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">
+        <span lang="ar">تطبيق عربي · يعمل بلا إنترنت</span>
+        <span lang="en">Arabic app · works fully offline</span>
+      </span>
+      <h1 class="script" lang="ar">وَقُوتُ الصَّلاة</h1>
+      <h1 lang="en">Wqoot</h1>
+      <p class="lede" lang="ar">
+        مواقيت الصلوات الخمس والشروق، والتاريخ الهجري، وتنبيه الأذان — محسوبة
+        فلكياً على جهازك نفسه. بلا اتصال، بلا حساب، بلا إعلانات، بلا تتبّع.
+      </p>
+      <p class="lede" lang="en">
+        The five daily prayers and sunrise, the Hijri date, and adhan alerts —
+        computed astronomically on your own device. No connection, no account,
+        no ads, no tracking.
+      </p>
+      <div class="pills">
+        <span class="pill"><span lang="ar">أكثر من ١٨٠ مدينة</span><span lang="en">180+ cities</span></span>
+        <span class="pill"><span lang="ar">أذان وتذكير مسبق</span><span lang="en">Adhan &amp; early reminder</span></span>
+        <span class="pill"><span lang="ar">تقويم أم القرى</span><span lang="en">Umm al-Qura calendar</span></span>
+        <span class="pill"><span lang="ar">أداة شاشة رئيسة</span><span lang="en">Home screen widget</span></span>
+      </div>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=apps.waleed.sunnah.wgoot">
+          <svg width="18" height="20" viewBox="0 0 20 22" aria-hidden="true">
+            <path fill="currentColor" d="M1.3.4A1.6 1.6 0 0 0 1 1.3v19.4c0 .35.1.66.3.9L11.6 11 1.3.4Zm11.4 11.5 2.9 2.98-11.1 6.3 8.2-9.28Zm0-1.8L4.5 1l11.1 6.3-2.9 2.8Zm3.9 4.1L13.9 11l2.7-2.8 2.9 1.65c.9.5.9 1.8 0 2.3l-2.9 1.65Z"/>
+          </svg>
+          <span lang="ar">حمّله من Google Play</span>
+          <span lang="en">Get it on Google Play</span>
+        </a>
+        <a class="btn btn-ghost" href="#privacy">
+          <span lang="ar">لماذا لا يطلب أي إذن؟</span>
+          <span lang="en">Why it asks for nothing</span>
+        </a>
+      </div>
+      <p class="fine">
+        <span lang="ar">مجاني بالكامل · بلا مشتريات داخل التطبيق · حجم صغير</span>
+        <span lang="en">Free · no in-app purchases · small download</span>
+      </p>
+    </div>
+    <div class="phones">
+      <div class="phone back"><img src="assets/screens/home-dark.png" alt="" loading="lazy"></div>
+      <div class="phone front">
+        <img src="assets/screens/home.png" width="1080" height="2160"
+             alt="الشاشة الرئيسة: الصلاة القادمة والوقت المتبقي ومواقيت اليوم">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <b lang="ar">١٨٠+</b><b lang="en">180+</b>
+    <span lang="ar">مدينة مضمّنة</span><span lang="en">cities bundled</span>
+  </div>
+  <div class="stat">
+    <b lang="ar">١٢</b><b lang="en">12</b>
+    <span lang="ar">طريقة حساب معتمدة</span><span lang="en">calculation methods</span>
+  </div>
+  <div class="stat">
+    <b lang="ar">لا شيء</b><b lang="en">0</b>
+    <span lang="ar">من طلبات الإنترنت</span><span lang="en">network requests</span>
+  </div>
+  <div class="stat">
+    <b lang="ar">لا شيء</b><b lang="en">0</b>
+    <span lang="ar">من بياناتك يُجمع</span><span lang="en">bytes of data collected</span>
+  </div>
+</section>
+
+<section class="band" id="features">
+  <div class="wrap">
+    <div class="head">
+      <div class="rule"><i>◆</i></div>
+      <h2 lang="ar">كل ما تحتاجه لمواقيتك</h2>
+      <h2 lang="en">Everything your timetable needs</h2>
+      <p lang="ar">مصمَّم بلغة تطبيقَي «الأربعون النووية» و«حصن المسلم»: واجهة عربية كاملة من اليمين إلى اليسار، بخطي «أميري» و«IBM Plex Sans Arabic».</p>
+      <p lang="en">Built in the same design language as the Nawawi's Forty and Hisn al-Muslim apps: a fully right-to-left Arabic interface set in Amiri and IBM Plex Sans Arabic.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <h3 lang="ar">حساب فلكي على الجهاز</h3>
+        <h3 lang="en">Astronomical, on device</h3>
+        <p lang="ar">الصلوات الخمس مع الشروق تُحسب داخل الجهاز نفسه، فيعمل التطبيق كاملاً في الطائرة وفي الصحراء وفي أي مكان بلا شبكة.</p>
+        <p lang="en">The five prayers plus sunrise are computed inside the device, so the app works in full on a plane, in the desert, anywhere without a signal.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+        </div>
+        <h3 lang="ar">أكثر من ١٨٠ مدينة</h3>
+        <h3 lang="en">More than 180 cities</h3>
+        <p lang="ar">بحث عربي يتجاهل التشكيل ويوحّد الهمزات، فتصل إلى مدينتك سواء كتبت «القاهره» أو «القاهرة». وتُحسب كل مدينة بتوقيتها المحلي ولو كان جهازك في بلد آخر.</p>
+        <p lang="en">An Arabic search that ignores diacritics and normalises hamza spellings. Each city is computed in its own time zone, so the times stay right even when your phone is elsewhere.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4M4 4h11l-2 3 2 3H4"/></svg>
+        </div>
+        <h3 lang="ar">طريقة الحساب تلقائياً</h3>
+        <h3 lang="en">The right method, chosen for you</h3>
+        <p lang="ar">تُختار حسب دولة المدينة: أم القرى، المصرية، رابطة العالم الإسلامي، كراتشي، دبي، الكويت، قطر، ديانت، سنغافورة، ISNA وغيرها — مع إمكانية تغييرها يدوياً، ومذهب العصر (الجمهور/الحنفي).</p>
+        <p lang="en">Picked from the city's country: Umm al-Qura, Egyptian Authority, Muslim World League, Karachi, Dubai, Kuwait, Qatar, Diyanet, Singapore, ISNA and more — overridable at any time, with the Asr madhab too.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+        </div>
+        <h3 lang="ar">تعديل يدوي دقيق</h3>
+        <h3 lang="en">Fine tuning</h3>
+        <p lang="ar">عدّل كل وقت من −٦٠ إلى +٦٠ دقيقة لمطابقة تقويم مسجدك، فينعكس على الجدول والتنبيهات معاً. والتاريخ الهجري يُعدَّل ±٣ أيام.</p>
+        <p lang="en">Shift any prayer by −60 to +60 minutes to match your mosque's calendar; the change applies to both the timetable and the alerts. The Hijri date shifts ±3 days.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+        </div>
+        <h3 lang="ar">الأذان في وقته</h3>
+        <h3 lang="en">The adhan, on time</h3>
+        <p lang="ar">تنبيه عند دخول كل وقت، وتذكير اختياري قبله من ٥ إلى ٣٠ دقيقة، وكتم أي صلاة على حدة. تُجدول التنبيهات بخصائص المنبّه، وتُعاد جدولتها بعد إعادة تشغيل الجهاز.</p>
+        <p lang="en">An alert as each time enters, an optional reminder 5–30 minutes before, and per-prayer muting. Alerts run on an alarm-grade channel and reschedule themselves after a reboot.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6.6 6.6 0 0 0 0 13.2A7 7 0 1 1 12 3Z"/></svg>
+        </div>
+        <h3 lang="ar">التاريخ الهجري</h3>
+        <h3 lang="en">The Hijri date</h3>
+        <p lang="ar">تقويم أم القرى بأسماء الأشهر العربية، ويظهر التاريخان الهجري والميلادي معاً في الشاشة الرئيسة.</p>
+        <p lang="en">The Umm al-Qura calendar with Arabic month names, shown alongside the Gregorian date on the home screen.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3M9 14.5h6"/></svg>
+        </div>
+        <h3 lang="ar">جدول الشهر كاملاً</h3>
+        <h3 lang="en">A month at a glance</h3>
+        <p lang="ar">مواقيت الشهر كله في جدول واحد، مع إبراز اليوم الحالي وتمييز أيام الجمعة.</p>
+        <p lang="en">A full month of prayer times in a single table, with today highlighted and Fridays marked.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+        </div>
+        <h3 lang="ar">أداة الشاشة الرئيسة</h3>
+        <h3 lang="en">Home screen widget</h3>
+        <p lang="ar">أداة قابلة لتغيير الحجم تعرض الصلاة القادمة والوقت المتبقي ومواقيت اليوم كاملة، دون فتح التطبيق.</p>
+        <p lang="en">A resizable widget showing the next prayer, the countdown to it, and today's full timetable without opening the app.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band tint" id="screens">
+  <div class="wrap">
+    <div class="head">
+      <div class="rule"><i>◆</i></div>
+      <h2 lang="ar">من داخل التطبيق</h2>
+      <h2 lang="en">Inside the app</h2>
+      <p lang="ar">مظهر فاتح وداكن يتبع النظام، ونظام ١٢ أو ٢٤ ساعة، وأرقام هندية عربية.</p>
+      <p lang="en">Light and dark themes that follow the system, a 12 or 24 hour clock, and Eastern Arabic numerals.</p>
+    </div>
+
+    <div class="shots">
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/home.png" width="1080" height="2160" alt="الشاشة الرئيسة" loading="lazy"></div>
+        <figcaption><span lang="ar">الصلاة القادمة والعدّ التنازلي</span><span lang="en">Next prayer and countdown</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/monthly.png" width="1080" height="2160" alt="جدول مواقيت الشهر" loading="lazy"></div>
+        <figcaption><span lang="ar">جدول مواقيت الشهر</span><span lang="en">The monthly timetable</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/cities.png" width="1080" height="2160" alt="اختيار المدينة" loading="lazy"></div>
+        <figcaption><span lang="ar">اختيار المدينة والبحث العربي</span><span lang="en">City picker and Arabic search</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/settings.png" width="1080" height="2160" alt="الإعدادات" loading="lazy"></div>
+        <figcaption><span lang="ar">الإعدادات وطرق الحساب</span><span lang="en">Settings and methods</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/adjust.png" width="1080" height="2160" alt="التعديل اليدوي للمواقيت" loading="lazy"></div>
+        <figcaption><span lang="ar">التعديل اليدوي ±٦٠ دقيقة</span><span lang="en">Manual ±60 minute tuning</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="phone"><img src="assets/screens/home-dark.png" width="1080" height="2160" alt="المظهر الداكن" loading="lazy"></div>
+        <figcaption><span lang="ar">المظهر الداكن</span><span lang="en">The dark theme</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap quote">
+    <div class="rule"><i>◆</i></div>
+    <blockquote lang="ar">افتتح الإمام مالك بن أنس رحمه الله «الموطأ» بـ«كتاب وُقُوت الصلاة»، و«الوُقُوت» جمع وقت — ومن هنا اسم التطبيق.</blockquote>
+    <blockquote lang="en">Imam Malik ibn Anas opened his Muwatta with "Kitab Wuqut as-Salah". "Wuqut" is the plural of "waqt", a time — and the app takes its name from it.</blockquote>
+    <cite lang="ar">في تسمية التطبيق</cite>
+    <cite lang="en">On the name</cite>
+  </div>
+</section>
+
+<section class="band tint" id="privacy">
+  <div class="wrap">
+    <div class="privacy">
+      <h2 lang="ar">لا يعرف عنك شيئاً</h2>
+      <h2 lang="en">It knows nothing about you</h2>
+      <p lang="ar">ليست وعداً تسويقياً: نسخة الإصدار لا تطلب إذن الإنترنت أصلاً، ولا يوجد في شفرة التطبيق أي عميل شبكة ولا حزمة إعلانات ولا تحليلات.</p>
+      <p lang="en">Not a marketing promise: the release build does not even request the internet permission, and the source contains no network client, no ad SDK and no analytics.</p>
+      <ul>
+        <li><span lang="ar">لا يجمع أي بيانات ولا يرسل شيئاً إلى أي خادم.</span><span lang="en">Collects no data and sends nothing to any server.</span></li>
+        <li><span lang="ar">لا يطلب إذن الموقع — أنت تختار مدينتك بنفسك.</span><span lang="en">Never asks for location — you pick your city yourself.</span></li>
+        <li><span lang="ar">لا حسابات ولا تسجيل دخول.</span><span lang="en">No accounts, no sign-in.</span></li>
+        <li><span lang="ar">لا إعلانات ولا تتبّع ولا مشتريات داخل التطبيق.</span><span lang="en">No ads, no tracking, no in-app purchases.</span></li>
+        <li><span lang="ar">إعداداتك تبقى على جهازك، وتُحذف مع حذف التطبيق.</span><span lang="en">Your settings stay on your device and vanish when you uninstall.</span></li>
+        <li><span lang="ar">الأذونات الوحيدة: الإشعارات والمنبّهات الدقيقة والتشغيل بعد الإقلاع والاهتزاز.</span><span lang="en">The only permissions: notifications, exact alarms, run at boot, vibrate.</span></li>
+      </ul>
+      <a class="btn btn-ghost" href="privacy-policy.html">
+        <span lang="ar">اقرأ سياسة الخصوصية كاملة</span>
+        <span lang="en">Read the full privacy policy</span>
+      </a>
+    </div>
+
+    <div class="note">
+      <p lang="ar"><strong>ملاحظة شرعية.</strong> المواقيت محسوبة فلكياً بالطرق المعتمدة، وقد تختلف دقائق معدودة عن تقويم مسجدك. اعتمد على أذان مسجدك عند الاختلاف، أو استعمل التعديل اليدوي لمطابقته.</p>
+      <p lang="en"><strong>A note on accuracy.</strong> Prayer times are astronomical calculations using established methods, and may differ by a few minutes from your mosque's calendar. Follow your mosque's adhan where they differ, or use the manual adjustment to match it exactly.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap foot">
+    <div>
+      <small lang="ar">وَقُوتُ الصَّلاة · <code>apps.waleed.sunnah.wgoot</code></small>
+      <small lang="en">Wqoot · <code>apps.waleed.sunnah.wgoot</code></small>
+      <small lang="ar">خطّا «أميري» و«IBM Plex Sans Arabic» بموجب رخصة SIL Open Font 1.1.</small>
+      <small lang="en">Amiri and IBM Plex Sans Arabic are used under the SIL Open Font License 1.1.</small>
+    </div>
+    <div class="foot-links">
+      <a href="https://play.google.com/store/apps/details?id=apps.waleed.sunnah.wgoot">Google Play</a>
+      <a href="privacy-policy.html"><span lang="ar">سياسة الخصوصية</span><span lang="en">Privacy policy</span></a>
+      <a href="mailto:waleedhassan2000@gmail.com"><span lang="ar">تواصل</span><span lang="en">Contact</span></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var saved = null;
+  try { saved = localStorage.getItem("wgoot-lang"); } catch (e) {}
+  if (!saved) {
+    saved = (navigator.language || "ar").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
+  }
+  apply(saved);
+
+  document.getElementById("langToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-lang") === "ar" ? "en" : "ar";
+    apply(next);
+    try { localStorage.setItem("wgoot-lang", next); } catch (e) {}
+  });
+
+  function apply(lang) {
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang);
+    root.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+  }
+})();
+</script>
+
+</body>
+</html>
