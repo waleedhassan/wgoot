@@ -1,0 +1,9 @@
+The first release of Wqoot.
+
+• The five daily prayers and sunrise, computed on your device, no internet.
+• Over 180 cities, with an Arabic search that ignores diacritics.
+• Calculation method picked automatically by country, or set by hand.
+• Adhan alerts with an optional early reminder, and per-prayer muting.
+• Hijri (Umm al-Qura) date and a full monthly timetable.
+• A home screen widget with the next prayer and its countdown.
+• Light and dark themes, 12/24 hour clock, fully Arabic interface.

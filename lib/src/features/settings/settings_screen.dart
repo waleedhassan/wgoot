@@ -529,16 +529,14 @@ class _Section extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: palette.divider),
-            ),
+          Material(
+            color: theme.colorScheme.surfaceContainerLowest,
             clipBehavior: Clip.antiAlias,
-            child: Material(
-              color: theme.colorScheme.surfaceContainerLowest,
-              child: Column(children: children),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: palette.divider),
             ),
+            child: Column(children: children),
           ),
         ],
       ),

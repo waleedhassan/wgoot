@@ -57,7 +57,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'وَقُوتُ الصَّلاة',
+           'وُقُوتُ الصّلاةِ',
             textAlign: TextAlign.center,
             style: theme.textTheme.displaySmall,
           ),

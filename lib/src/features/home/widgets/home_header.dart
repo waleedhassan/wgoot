@@ -85,7 +85,7 @@ class HomeHeader extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           const Text(
-            'وَقُوتُ الصَّلاة',
+            'وُقُوتُ الصّلاةِ',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppTheme.scriptFontFamily,

@@ -1,0 +1,49 @@
+# Release configuration for the Play Store pipeline.
+# Copy this file together with release.py and flutter_play/ into any Flutter
+# project, adjust the values below, and run:  python store/tool/release.py
+
+[project]
+# Path to the Flutter project, relative to this file.
+root = "../.."
+
+[build]
+appbundle = true
+apk = false
+split_per_abi = false
+obfuscate = true
+flavor = ""
+dart_defines = []
+extra_args = []
+
+[checks]
+analyze = true
+test = true
+fatal_infos = false
+require_release_signing = true
+forbidden_application_ids = ["com.example", "com.yourcompany", "com.mycompany"]
+# Any permission in the release manifest that is not listed here fails preflight.
+# Leave the list empty to disable the check.
+allowed_permissions = [
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.VIBRATE",
+]
+
+[output]
+dir = "build/play"
+keep_versions = 10
+
+[store]
+dir = "store/play"
+listing_locales = ["ar", "en-US"]
+
+[graphics]
+background_start = "#7E5130"
+background_end = "#2E1A0D"
+accent = "#E0C177"
+text = "#FAF2E2"
+title = "وَقُوتُ الصَّلاة"
+subtitle = "مواقيت الصلاة والأذان والتاريخ الهجري"
+font = "assets/fonts/IBMPlexSansArabic-Bold.ttf"
+icon_source = "assets/icon/app_icon.png"

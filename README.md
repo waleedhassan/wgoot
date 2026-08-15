@@ -104,6 +104,28 @@ flutter build apk --release
 `storePassword` و`keyAlias` و`keyPassword`؛ وبدونه يُوقَّع الإصدار بمفاتيح
 التصحيح لتظل `flutter run --release` تعمل.
 
+## النشر على Google Play
+
+كل ما يطلبه المتجر — نصوص الصفحة بالعربية والإنجليزية، وسياسة الخصوصية،
+وإجابات نموذج «أمان البيانات» وتصنيف المحتوى — جاهز في
+[`store/play/`](store/play/README.md)، والخطوات بالترتيب في
+[`store/play/release-process.md`](store/play/release-process.md).
+
+أنشئ مفتاح التوقيع مرة واحدة:
+
+```bash
+python store/tool/release.py keystore
+```
+
+ثم لكل إصدار، أمر واحد يفحص ويبني ويوقّع ويجمع كل ما يُرفع:
+
+```bash
+python store/tool/release.py --bump build
+```
+
+تفصيل الأداة في [`store/tool/README.md`](store/tool/README.md)، وهي صالحة لأي
+تطبيق Flutter لا لهذا التطبيق وحده.
+
 ## الخطوط
 
 «أميري» و«IBM Plex Sans Arabic» — مرخّصان بموجب SIL Open Font License 1.1
