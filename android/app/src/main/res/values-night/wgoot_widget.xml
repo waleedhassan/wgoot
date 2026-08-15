@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="wgoot_widget_background_start">#FF3C2617</color>
+    <color name="wgoot_widget_background_end">#FF241610</color>
+    <color name="wgoot_widget_text">#FFE9E1D9</color>
+    <color name="wgoot_widget_muted">#FFCDC0B4</color>
+</resources>

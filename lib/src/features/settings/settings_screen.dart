@@ -185,6 +185,12 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          if (settings.homeScreenWidgetSupported)
+            const _Section(
+              title: 'شاشة الجهاز الرئيسية',
+              icon: Icons.widgets_rounded,
+              children: <Widget>[_HomeScreenWidgetTile()],
+            ),
         ],
       ),
     );
@@ -420,6 +426,58 @@ class SettingsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _HomeScreenWidgetTile extends StatefulWidget {
+  const _HomeScreenWidgetTile();
+
+  @override
+  State<_HomeScreenWidgetTile> createState() => _HomeScreenWidgetTileState();
+}
+
+class _HomeScreenWidgetTileState extends State<_HomeScreenWidgetTile> {
+  bool _canPin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolvePinSupport();
+  }
+
+  Future<void> _resolvePinSupport() async {
+    final bool canPin = await context
+        .read<SettingsController>()
+        .canPinHomeScreenWidget();
+    if (mounted) {
+      setState(() => _canPin = canPin);
+    }
+  }
+
+  Future<void> _pin() async {
+    final SettingsController settings = context.read<SettingsController>();
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    await settings.pinHomeScreenWidget();
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('اختر مكان المربع ثم أكّد الإضافة من الشاشة الرئيسية.'),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _Tile(
+      icon: Icons.dashboard_customize_rounded,
+      title: 'مربع المواقيت',
+      subtitle: _canPin
+          ? 'يعرض الصلاة القادمة والوقت المتبقي ومواقيت اليوم'
+          : 'أضفه بالضغط مطولاً على شاشة جهازك ثم اختيار «وقوت الصلاة»',
+      trailing: _canPin
+          ? const Icon(Icons.add_circle_outline_rounded, size: 22)
+          : null,
+      onTap: _canPin ? _pin : null,
     );
   }
 }

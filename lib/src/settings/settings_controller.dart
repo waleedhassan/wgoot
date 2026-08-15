@@ -7,12 +7,18 @@ import '../data/cities.dart';
 import '../data/models/city.dart';
 import '../data/models/prayer_slot.dart';
 import '../data/prayer_engine.dart';
+import '../homescreen/home_widget_sync.dart';
 import '../notifications/notification_service.dart';
 import '../notifications/prayer_scheduler.dart';
 import 'settings_service.dart';
 
 class SettingsController extends ChangeNotifier {
-  SettingsController(this._service, this._notifications, this._scheduler);
+  SettingsController(
+    this._service,
+    this._notifications,
+    this._scheduler, [
+    HomeWidgetSync? homeWidget,
+  ]) : _homeWidget = homeWidget ?? HomeWidgetSync();
 
   static const int maxAdjustment = 60;
   static const List<int> preAlertChoices = <int>[0, 5, 10, 15, 20, 30];
@@ -20,6 +26,7 @@ class SettingsController extends ChangeNotifier {
   final SettingsService _service;
   final NotificationService _notifications;
   final PrayerScheduler _scheduler;
+  final HomeWidgetSync _homeWidget;
 
   ThemeMode _themeMode = ThemeMode.system;
   City _city = kDefaultCity;
@@ -239,6 +246,26 @@ class SettingsController extends ChangeNotifier {
   Future<void> requestNotificationPermissions() =>
       _notifications.requestPermissions();
 
+  bool get homeScreenWidgetSupported => _homeWidget.isSupported;
+
+  Future<bool> canPinHomeScreenWidget() => _homeWidget.canPinToHomeScreen();
+
+  Future<void> pinHomeScreenWidget() async {
+    await refreshHomeScreenWidget();
+    await _homeWidget.requestPinToHomeScreen();
+  }
+
+  Future<void> refreshHomeScreenWidget() {
+    return _homeWidget.push(
+      HomeWidgetRequest(
+        city: _city,
+        config: calculationConfig,
+        hijriOffset: _hijriOffset,
+        use24HourClock: _use24HourClock,
+      ),
+    );
+  }
+
   Future<void> refreshSchedule() async {
     _scheduledCount = await _scheduler.reschedule(
       ScheduleRequest(
@@ -252,6 +279,7 @@ class SettingsController extends ChangeNotifier {
         use24HourClock: _use24HourClock,
       ),
     );
+    await refreshHomeScreenWidget();
     notifyListeners();
   }
 

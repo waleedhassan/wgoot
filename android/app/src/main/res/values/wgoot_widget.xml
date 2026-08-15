@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wgoot_widget_label">مواقيت الصلاة</string>
+    <string name="wgoot_widget_description">الصلاة القادمة والوقت المتبقي مع مواقيت اليوم كاملة.</string>
+    <string name="wgoot_widget_empty">افتح التطبيق لتحديث المواقيت</string>
+    <string name="wgoot_widget_remaining">المتبقي</string>
+
+    <color name="wgoot_widget_background_start">#FF7E5130</color>
+    <color name="wgoot_widget_background_end">#FF4A2B16</color>
+    <color name="wgoot_widget_stroke">#38E0C177</color>
+    <color name="wgoot_widget_gold">#FFE0C177</color>
+    <color name="wgoot_widget_text">#FFF7F1E8</color>
+    <color name="wgoot_widget_muted">#FFD3BCA4</color>
+    <color name="wgoot_widget_pill">#33E0C177</color>
+    <color name="wgoot_widget_pill_stroke">#66E0C177</color>
+
+    <dimen name="wgoot_widget_radius">20dp</dimen>
+</resources>
