@@ -59,6 +59,40 @@ The shipped set is 8 files in `screenshots/phone/`, all **1080×2160**, exactly
 Originals are kept in `screenshots/raw/` — `phone-*.png` are the untouched
 device captures, `gen-*.png` are the rendered ones.
 
+### Tablets
+
+Both tablet sets are rendered, not captured — there is no tablet hardware and no
+tablet AVD here. They are **1200×1920** (7-inch, 600×960 logical at 2×) and
+**1600×2560** (10-inch, 800×1280 logical at 2×), both 1.6:1, well inside Play's
+2:1 limit.
+
+| 7-inch | 10-inch | Screen |
+| --- | --- | --- |
+| `01-home.png` | `01-home.png` | Home, next prayer and countdown |
+| `02-monthly.png` | `02-monthly.png` | Full monthly timetable |
+| `03-cities.png` | — | City picker, filtered to one country |
+| `04-settings.png` | — | Settings — method, madhab, alerts |
+| `05-adjust.png` | `03-adjust.png` | Manual per-prayer adjustment |
+| `06-about.png` | `04-about.png` | About, the name from the Muwatta |
+| `07-home-dark.png` | `05-home-dark.png` | Home in the dark theme |
+| `08-settings-dark.png` | — | Settings in the dark theme |
+| — | `06-monthly-dark.png` | Monthly timetable in the dark theme |
+
+The app has one layout for every width, so a tablet shot is the phone layout
+given more room — the monthly table in particular reads much better wide. On the
+10-inch canvas the home screen leaves empty space below the buttons, which is
+what the app genuinely looks like there.
+
+The two sets differ because of the flag emoji. Country flags appear on the
+settings city tile and on the city picker's country headers, and they cannot be
+rendered under `flutter test` (see below), so those screens are only usable when
+the list can scroll far enough to push every flag out of frame. On the 7-inch
+canvas both lists overflow and scroll; on the 10-inch canvas they fit entirely,
+scroll nowhere, and are left out of that set instead. `_scrollPastFlags` in the
+capture tool asserts this — it measures each flag's `RenderBox` after the scroll
+and fails the test if one is still inside the frame, so this cannot regress
+quietly into a shipped screenshot.
+
 ### Why 1080×2160 and not 1080×2400
 
 Play's rule is that **the longest side may not be more than twice the shortest**.
@@ -82,10 +116,23 @@ renders screens straight from the widget tree — no emulator, no device:
 flutter test tool/capture_screenshots_test.dart
 ```
 
-It lays the app out at 360×720 logical, captures the repaint boundary at 3×, and
-writes 1080×2160 PNGs into `screenshots/raw/gen-*.png`. It loads the real Amiri
-and IBM Plex Sans Arabic files plus the Flutter SDK's Material Icons, because
-`flutter test` otherwise draws every glyph as a box.
+Each capture declares a `Viewport` — logical size plus pixel ratio — and the
+repaint boundary is grabbed at that ratio. The phone shots lay out at 360×720
+logical at 3× into `screenshots/raw/gen-*.png`; the tablet shots lay out at
+600×960 and 800×1280 logical at 2× into `raw/tablet7-*.png` and
+`raw/tablet10-*.png`. The test loads the real Amiri and IBM Plex Sans Arabic
+files plus the Flutter SDK's Material Icons, because `flutter test` otherwise
+draws every glyph as a box.
+
+Normalise and copy them into the per-class folders with:
+
+```bash
+python store/tool/release.py screenshots --class tablet7
+python store/tool/release.py screenshots --class tablet10
+```
+
+That flattens each one to 24-bit RGB and writes `01.png`, `02.png`, … — rename
+them to the descriptive names in the tables above afterwards.
 
 It lives in `tool/` rather than `test/` on purpose, so `flutter test` — and the
 release pipeline — do not run it.
@@ -96,9 +143,10 @@ Two things to know if you extend it:
   is real async work, and the test binding's fake clock deadlocks without it.
 - Flag emoji do not render. The test environment has no emoji font, and
   registering `NotoColorEmoji.ttf` as an extra font in the same family does not
-  make glyph fallback kick in. The city picker screenshot scrolls the country
-  header off screen to avoid it. Any screen that must show a flag has to come
-  off a real device.
+  make glyph fallback kick in. Loading it under its own family name is worse —
+  the test hangs until it times out. Screens carrying a flag are scrolled past
+  it with `_scrollPastFlags`, and dropped from a set when the list is too short
+  to scroll. Any screen that must *show* a flag has to come off a real device.
 
 ## What gets a listing rejected
 

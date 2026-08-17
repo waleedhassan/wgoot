@@ -23,6 +23,7 @@ except ModuleNotFoundError:
 
 ICON_SIZE = 512
 FEATURE_SIZE = (1024, 500)
+BELOW_MARKS = "\u064d\u0650"
 
 
 def _require_pillow():
@@ -52,6 +53,45 @@ def shape(text):
         warn("Arabic text needs shaping. Run: pip install arabic-reshaper python-bidi")
         return text
     return get_display(RESHAPER.reshape(text))
+
+
+def _split_below_marks(text):
+    kept = []
+    marks = []
+    for character in text:
+        if character in BELOW_MARKS:
+            marks.append((len(kept), character))
+        else:
+            kept.append(character)
+    return "".join(kept), marks
+
+
+def draw_shaped(draw, position, text, font, fill, anchor):
+    kept, marks = _split_below_marks(text)
+    draw.text(position, kept, font=font, fill=fill, anchor=anchor)
+    if not marks:
+        return
+
+    ascent, descent = font.getmetrics()
+    x, y = position
+    left = x - font.getlength(kept) if anchor.startswith("r") else x
+    baseline = y + ascent
+
+    for index, mark in marks:
+        if index >= len(kept):
+            continue
+        base_left = left + font.getlength(kept[:index])
+        base_width = font.getlength(kept[index])
+        box = font.getbbox(mark)
+        draw.text(
+            (
+                base_left + (base_width - (box[2] - box[0])) / 2 - box[0],
+                baseline + descent * 0.10 - box[1],
+            ),
+            mark,
+            font=font,
+            fill=fill,
+        )
 
 
 def _font(config, size):
@@ -215,11 +255,11 @@ def feature_graphic(config, destination):
     block_height = title_height + (96 if shaped_subtitle else 0)
     top = (height - block_height) // 2
 
-    draw.text(
-        (anchor_x + 3, top + 4), shaped_title, font=title_font, fill=(0, 0, 0, 90), anchor=align
+    draw_shaped(
+        draw, (anchor_x + 3, top + 4), shaped_title, title_font, (0, 0, 0, 90), align
     )
-    draw.text(
-        (anchor_x, top), shaped_title, font=title_font, fill=text_color + (255,), anchor=align
+    draw_shaped(
+        draw, (anchor_x, top), shaped_title, title_font, text_color + (255,), align
     )
 
     rule_y = top + title_height + 22
@@ -235,12 +275,13 @@ def feature_graphic(config, destination):
     )
 
     if shaped_subtitle:
-        draw.text(
+        draw_shaped(
+            draw,
             (anchor_x, rule_y + 26),
             shaped_subtitle,
-            font=subtitle_font,
-            fill=accent + (235,),
-            anchor=align,
+            subtitle_font,
+            accent + (235,),
+            align,
         )
 
     image.convert("RGB").save(destination, "PNG")

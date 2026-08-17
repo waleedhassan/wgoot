@@ -17,16 +17,34 @@ import 'package:wgoot/src/core/theme/app_theme.dart';
 import 'package:wgoot/src/data/cities.dart';
 import 'package:wgoot/src/data/models/city.dart';
 import 'package:wgoot/src/data/models/prayer_slot.dart';
+import 'package:wgoot/src/features/about/about_screen.dart';
 import 'package:wgoot/src/features/adjust/adjustments_screen.dart';
 import 'package:wgoot/src/features/city/city_picker_screen.dart';
+import 'package:wgoot/src/features/home/home_screen.dart';
+import 'package:wgoot/src/features/monthly/monthly_screen.dart';
 import 'package:wgoot/src/features/onboarding/welcome_screen.dart';
+import 'package:wgoot/src/features/settings/settings_screen.dart';
 import 'package:wgoot/src/notifications/notification_service.dart';
 import 'package:wgoot/src/notifications/prayer_scheduler.dart';
 import 'package:wgoot/src/settings/settings_controller.dart';
 import 'package:wgoot/src/settings/settings_service.dart';
 
-const Size kLogicalSize = Size(360, 720);
-const double kPixelRatio = 3.0;
+class Viewport {
+  const Viewport(this.name, this.logicalSize, this.pixelRatio);
+
+  final String name;
+  final Size logicalSize;
+  final double pixelRatio;
+
+  int get widthInPixels => (logicalSize.width * pixelRatio).round();
+
+  int get heightInPixels => (logicalSize.height * pixelRatio).round();
+}
+
+const Viewport kPhone = Viewport('phone', Size(360, 720), 3.0);
+const Viewport kTablet7 = Viewport('tablet7', Size(600, 960), 2.0);
+const Viewport kTablet10 = Viewport('tablet10', Size(800, 1280), 2.0);
+
 const String kOutputDirectory = 'store/play/graphics/screenshots/raw';
 
 final GlobalKey _captureKey = GlobalKey();
@@ -101,12 +119,12 @@ Future<void> _loadFonts() async {
   ]);
 }
 
-void _usePhoneViewport(WidgetTester tester) {
+void _useViewport(WidgetTester tester, Viewport viewport) {
   tester.view.physicalSize = Size(
-    kLogicalSize.width * kPixelRatio,
-    kLogicalSize.height * kPixelRatio,
+    viewport.widthInPixels.toDouble(),
+    viewport.heightInPixels.toDouble(),
   );
-  tester.view.devicePixelRatio = kPixelRatio;
+  tester.view.devicePixelRatio = viewport.pixelRatio;
   addTearDown(tester.view.reset);
 }
 
@@ -123,11 +141,16 @@ Future<SettingsController> _controller({bool withCity = true}) async {
   await controller.load();
   if (withCity) {
     await controller.setCity(_riyadh);
+    await controller.refreshSchedule();
   }
   return controller;
 }
 
-Widget _frame(SettingsController controller, Widget screen) {
+Widget _frame(
+  SettingsController controller,
+  Widget screen, {
+  ThemeMode themeMode = ThemeMode.light,
+}) {
   return RepaintBoundary(
     key: _captureKey,
     child: ChangeNotifierProvider<SettingsController>.value(
@@ -136,7 +159,7 @@ Widget _frame(SettingsController controller, Widget screen) {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.light,
+        themeMode: themeMode,
         locale: const Locale('ar'),
         supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
         localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
@@ -150,12 +173,14 @@ Widget _frame(SettingsController controller, Widget screen) {
   );
 }
 
-Future<void> _save(WidgetTester tester, String name) async {
+Future<void> _save(WidgetTester tester, Viewport viewport, String name) async {
   final RenderRepaintBoundary boundary =
       _captureKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
 
   await tester.runAsync(() async {
-    final ui.Image image = await boundary.toImage(pixelRatio: kPixelRatio);
+    final ui.Image image = await boundary.toImage(
+      pixelRatio: viewport.pixelRatio,
+    );
     final ByteData? data =
         await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
@@ -166,14 +191,62 @@ Future<void> _save(WidgetTester tester, String name) async {
 
     // ignore: avoid_print
     print('wrote ${file.path} '
-        '${(kLogicalSize.width * kPixelRatio).round()}x'
-        '${(kLogicalSize.height * kPixelRatio).round()}');
+        '${viewport.widthInPixels}x${viewport.heightInPixels}');
   });
 }
 
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(seconds: 2));
+}
+
+bool _hasFlagGlyph(String? text) {
+  if (text == null) {
+    return false;
+  }
+  return text.runes.any((int rune) => rune >= 0x1F1E6 && rune <= 0x1F1FF);
+}
+
+/// Scrolls a list until every country flag sits outside the captured frame,
+/// and fails if one is still visible. Flag emoji render as empty boxes under
+/// `flutter test`, so a screenshot showing one is unusable.
+Future<void> _scrollPastFlags(
+  WidgetTester tester,
+  Viewport viewport,
+  double logicalPixels,
+) async {
+  await tester.drag(find.byType(ListView).first, Offset(0, -logicalPixels));
+  await tester.pump();
+
+  final Iterable<Element> flags = find
+      .byWidgetPredicate(
+        (Widget widget) => widget is Text && _hasFlagGlyph(widget.data),
+      )
+      .evaluate();
+
+  for (final Element element in flags) {
+    final RenderBox box = element.renderObject! as RenderBox;
+    final double top = box.localToGlobal(Offset.zero).dy;
+    expect(
+      top + box.size.height <= 0 || top >= viewport.logicalSize.height,
+      isTrue,
+      reason: 'a flag glyph is in frame at y=$top',
+    );
+  }
+}
+
+void _tabletShot(
+  Viewport viewport,
+  String index,
+  String label,
+  Future<void> Function(WidgetTester tester) build,
+) {
+  testWidgets('${viewport.name} $label', (WidgetTester tester) async {
+    _useViewport(tester, viewport);
+    await build(tester);
+    await _save(tester, viewport, '${viewport.name}-$index');
+    await _unmount(tester);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }
 
 void main() {
@@ -223,7 +296,7 @@ void main() {
   });
 
   testWidgets('city picker', (WidgetTester tester) async {
-    _usePhoneViewport(tester);
+    _useViewport(tester, kPhone);
     final SettingsController controller = await _controller();
     await tester.pumpWidget(_frame(controller, const CityPickerScreen()));
     await tester.pump();
@@ -234,29 +307,134 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, -128));
     await tester.pump();
 
-    await _save(tester, 'gen-cities');
+    await _save(tester, kPhone, 'gen-cities');
     await _unmount(tester);
   }, timeout: const Timeout(Duration(minutes: 2)));
 
   testWidgets('adjustments', (WidgetTester tester) async {
-    _usePhoneViewport(tester);
+    _useViewport(tester, kPhone);
     final SettingsController controller = await _controller();
     await controller.setAdjustment(PrayerSlot.fajr, -2);
     await controller.setAdjustment(PrayerSlot.maghrib, 3);
     await tester.pumpWidget(_frame(controller, const AdjustmentsScreen()));
     await tester.pump();
 
-    await _save(tester, 'gen-adjust');
+    await _save(tester, kPhone, 'gen-adjust');
     await _unmount(tester);
   }, timeout: const Timeout(Duration(minutes: 2)));
 
   testWidgets('welcome', (WidgetTester tester) async {
-    _usePhoneViewport(tester);
+    _useViewport(tester, kPhone);
     final SettingsController controller = await _controller(withCity: false);
     await tester.pumpWidget(_frame(controller, const WelcomeScreen()));
     await tester.pump();
 
-    await _save(tester, 'gen-welcome');
+    await _save(tester, kPhone, 'gen-welcome');
     await _unmount(tester);
   }, timeout: const Timeout(Duration(minutes: 2)));
+
+  _tabletShot(kTablet7, '01', 'home', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const HomeScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet7, '02', 'monthly', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const MonthlyScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet7, '03', 'cities', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const CityPickerScreen()));
+    await tester.pump();
+
+    await tester.enterText(find.byType(TextField), 'السعودية');
+    await tester.pump();
+
+    await _scrollPastFlags(tester, kTablet7, 200);
+  });
+
+  _tabletShot(kTablet7, '04', 'settings', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const SettingsScreen()));
+    await tester.pump();
+
+    await _scrollPastFlags(tester, kTablet7, 205);
+  });
+
+  _tabletShot(kTablet7, '05', 'adjust', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await controller.setAdjustment(PrayerSlot.fajr, -2);
+    await controller.setAdjustment(PrayerSlot.maghrib, 3);
+    await tester.pumpWidget(_frame(controller, const AdjustmentsScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet7, '06', 'about', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const AboutScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet7, '07', 'home dark', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(
+      _frame(controller, const HomeScreen(), themeMode: ThemeMode.dark),
+    );
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet7, '08', 'settings dark', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(
+      _frame(controller, const SettingsScreen(), themeMode: ThemeMode.dark),
+    );
+    await tester.pump();
+
+    await _scrollPastFlags(tester, kTablet7, 500);
+  });
+
+  _tabletShot(kTablet10, '01', 'home', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const HomeScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet10, '02', 'monthly', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const MonthlyScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet10, '03', 'adjust', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await controller.setAdjustment(PrayerSlot.fajr, -2);
+    await controller.setAdjustment(PrayerSlot.maghrib, 3);
+    await tester.pumpWidget(_frame(controller, const AdjustmentsScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet10, '04', 'about', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(_frame(controller, const AboutScreen()));
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet10, '05', 'home dark', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(
+      _frame(controller, const HomeScreen(), themeMode: ThemeMode.dark),
+    );
+    await tester.pump();
+  });
+
+  _tabletShot(kTablet10, '06', 'monthly dark', (WidgetTester tester) async {
+    final SettingsController controller = await _controller();
+    await tester.pumpWidget(
+      _frame(controller, const MonthlyScreen(), themeMode: ThemeMode.dark),
+    );
+    await tester.pump();
+  });
 }

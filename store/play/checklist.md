@@ -40,8 +40,11 @@ Tick down the list. Anything the tooling can verify is marked `[auto]` — run
 - [x] `icon-512.png` generated — 512×512, 32-bit PNG, opaque `[auto]`
 - [x] `feature-graphic-1024x500.png` generated `[auto]`
 - [x] 8 phone screenshots, all 1080×2160 at exactly 2:1 `[auto]`
+- [x] 8 7-inch tablet screenshots, all 1200×1920 at 1.6:1 `[auto]`
+- [x] 6 10-inch tablet screenshots, all 1600×2560 at 1.6:1 `[auto]`
 - [x] Screenshots show the real app, no device frames, no covering text
 - [x] Status bar and gesture pill cropped out of the device captures
+- [x] No unrendered flag glyphs in any rendered screenshot
 - [ ] App category set to Lifestyle
 - [ ] Public contact email set
 - [ ] Countries and regions chosen

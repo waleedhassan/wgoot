@@ -459,6 +459,20 @@ def check_graphics(config, report):
         "Run: python store/tool/release.py screenshots --capture",
     )
 
+    # Tablet folders are optional. Once one exists the listing shows it, so an
+    # under-filled folder is worth a warning.
+    for device_class in ("tablet7", "tablet10"):
+        folder = os.path.join(graphics, "screenshots", device_class)
+        if not os.path.isdir(folder):
+            continue
+        found = [n for n in os.listdir(folder) if n.lower().endswith(".png")]
+        report.advise(
+            2 <= len(found) <= 8,
+            "{0} {1} screenshots ready".format(len(found), device_class),
+            "Play takes 1 to 8 per device class and wants at least 2. "
+            "Run: python store/tool/release.py screenshots --class " + device_class,
+        )
+
 
 def run_analyze(config, report):
     if not config.get("checks", "analyze"):
