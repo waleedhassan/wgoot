@@ -12,7 +12,7 @@ class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   static const String routeName = '/about';
-  static const String version = '1.0.0';
+  static const String version = '1.1.0';
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +96,16 @@ class AboutScreen extends StatelessWidget {
                 'ويعيد جدولتها كلما فتحته أو غيّرت مدينتك. لضمان وصولها في '
                 'وقتها اسمح للتطبيق بالتنبيهات وبالمنبّهات الدقيقة، واستثنِه من '
                 'قيود توفير البطارية.',
+          ),
+          _InfoCard(
+            icon: Icons.explore_rounded,
+            title: 'اتجاه القبلة',
+            body:
+                'يُحسب اتجاه القبلة من إحداثيات مدينتك بأقصر طريق إلى الكعبة '
+                'المشرّفة، وتصحّح البوصلة الفرق بين الشمال المغناطيسي والجغرافي '
+                'بالنموذج المغناطيسي العالمي (WMM) دون إنترنت ودون إذن الموقع. '
+                'ضع الجهاز أفقياً بعيداً عن المعادن، وعايره بتحريكه على شكل '
+                'الرقم ٨ إن طُلب منك ذلك.',
           ),
           _InfoCard(
             icon: Icons.event_rounded,

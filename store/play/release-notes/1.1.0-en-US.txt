@@ -1,0 +1,6 @@
+New: Qibla direction.
+
+• A live compass that points you to the Qibla from your city, and vibrates once you face it.
+• Magnetic declination is corrected on your device — no internet, no location permission.
+• The Qibla angle and the distance to the Kaaba.
+• Open it from the compass button on the home screen or the "Qibla direction" button.

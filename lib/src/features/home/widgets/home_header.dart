@@ -20,6 +20,7 @@ class HomeHeader extends StatelessWidget {
     required this.onOpenSettings,
     required this.onOpenAbout,
     required this.onOpenMonth,
+    required this.onOpenQibla,
   });
 
   final City city;
@@ -32,6 +33,7 @@ class HomeHeader extends StatelessWidget {
   final VoidCallback onOpenSettings;
   final VoidCallback onOpenAbout;
   final VoidCallback onOpenMonth;
+  final VoidCallback onOpenQibla;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,12 @@ class HomeHeader extends StatelessWidget {
                 icon: Icons.tune_rounded,
                 tooltip: 'الإعدادات',
                 onTap: onOpenSettings,
+              ),
+              const SizedBox(width: 8),
+              _CircleButton(
+                icon: Icons.explore_rounded,
+                tooltip: 'اتجاه القبلة',
+                onTap: onOpenQibla,
               ),
               const Spacer(),
               _CircleButton(

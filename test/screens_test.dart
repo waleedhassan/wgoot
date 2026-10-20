@@ -126,7 +126,7 @@ void main() {
     await tester.pumpWidget(WgootApp(settingsController: controller));
     await tester.pump();
 
-    expect(find.text('وَقُوتُ الصَّلاة'), findsOneWidget);
+    expect(find.text('وُقُوتُ الصّلاةِ'), findsOneWidget);
     expect(find.textContaining('مكة المكرمة'), findsWidgets);
     for (final String title in <String>[
       'الفجر',

@@ -51,6 +51,11 @@ The name comes from Imam Malik ibn Anas, who opened his Muwatta with "Kitab Wuqu
 ■ MONTHLY TIMETABLE
 • A full month of prayer times in one table, with today highlighted and Fridays marked.
 
+■ QIBLA DIRECTION
+• A live compass that points you to the Qibla, with a gentle vibration once you face it.
+• Corrects for the gap between magnetic and true north on your device — no internet, no location permission.
+• The Qibla angle and the distance to the Kaaba from your city.
+
 ■ HOME SCREEN WIDGET
 • A resizable widget showing the next prayer, the countdown to it, and the full timetable for today.
 
