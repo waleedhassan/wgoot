@@ -5,14 +5,18 @@ import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/arabic_text.dart';
 import '../../data/calculation_labels.dart';
 import '../../data/hijri_date.dart';
+import '../../data/models/city.dart';
 import '../../data/models/prayer_slot.dart';
 import '../../data/prayer_engine.dart';
+import '../../data/qibla.dart';
 import '../../settings/settings_controller.dart';
 import '../about/about_screen.dart';
 import '../city/city_picker_screen.dart';
 import '../monthly/monthly_screen.dart';
+import '../qibla/qibla_screen.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/home_header.dart';
 import 'widgets/prayer_row.dart';
@@ -136,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen>
             onOpenSettings: _openSettings,
             onOpenAbout: _openAbout,
             onOpenMonth: _openMonth,
+            onOpenQibla: _openQibla,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -183,6 +188,14 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: OutlinedButton.icon(
+              onPressed: _openQibla,
+              icon: const Icon(Icons.explore_rounded, size: 20),
+              label: Text(_qiblaLabel(settings.city)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -233,6 +246,21 @@ class _HomeScreenState extends State<HomeScreen>
   void _openAbout() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => const AboutScreen()),
+    );
+  }
+
+  String _qiblaLabel(City city) {
+    if (distanceToKaabaKm(city.latitude, city.longitude) < kInsideHaramKm) {
+      return 'اتجاه القبلة';
+    }
+    final double bearing = qiblaBearing(city);
+    return 'اتجاه القبلة · ${formatDegrees(bearing)} '
+        '${compassPointName(bearing)}';
+  }
+
+  void _openQibla() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const QiblaScreen()),
     );
   }
 

@@ -120,6 +120,27 @@ String _plural(int count, String single, String dual, String plural) {
   return '${toArabicNumerals(count)} $single';
 }
 
+/// `١٣٦°`, or with [fractionDigits] `٤٫٨°`.
+String formatDegrees(double degrees, {int fractionDigits = 0}) {
+  final String value = fractionDigits == 0
+      ? (degrees.round() % 360).toString()
+      : degrees.toStringAsFixed(fractionDigits).replaceAll('.', '٫');
+  return '${toArabicNumerals(value)}°';
+}
+
+/// Whole kilometres with Arabic thousands separators, e.g. `١٬٢٨٥`.
+String formatDistanceKm(double km) {
+  final String digits = km.round().toString();
+  final StringBuffer buffer = StringBuffer();
+  for (int i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) {
+      buffer.write('٬');
+    }
+    buffer.write(digits[i]);
+  }
+  return toArabicNumerals(buffer.toString());
+}
+
 String formatSignedMinutes(int minutes) {
   if (minutes == 0) {
     return 'بدون تعديل';
