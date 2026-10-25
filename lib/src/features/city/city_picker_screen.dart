@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/arabic_text.dart';
 import '../../data/calculation_labels.dart';
 import '../../data/cities.dart';
+import '../../data/city_database.dart';
 import '../../data/models/city.dart';
 import '../../settings/settings_controller.dart';
 
@@ -18,11 +21,31 @@ class CityPickerScreen extends StatefulWidget {
 class _CityPickerScreenState extends State<CityPickerScreen> {
   final TextEditingController _controller = TextEditingController();
   String _query = '';
+  List<City> _matches = kFeaturedCities;
+  Timer? _debounce;
+  int _generation = 0;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onQueryChanged(String value) {
+    setState(() => _query = value);
+    _debounce?.cancel();
+    final int generation = ++_generation;
+    if (value.trim().isEmpty) {
+      setState(() => _matches = kFeaturedCities);
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 250), () async {
+      final List<City> matches = await CityDatabase.search(value);
+      if (mounted && generation == _generation) {
+        setState(() => _matches = matches);
+      }
+    });
   }
 
   @override
@@ -30,7 +53,7 @@ class _CityPickerScreenState extends State<CityPickerScreen> {
     final SettingsController settings = context.watch<SettingsController>();
     final ThemeData theme = Theme.of(context);
     final AppPalette palette = theme.extension<AppPalette>()!;
-    final List<City> matches = searchCities(_query);
+    final List<City> matches = _matches;
     final Map<String, List<City>> grouped = groupByCountry(matches);
     final List<String> countries = grouped.keys.toList(growable: false);
 
@@ -43,7 +66,7 @@ class _CityPickerScreenState extends State<CityPickerScreen> {
             child: TextField(
               controller: _controller,
               textInputAction: TextInputAction.search,
-              onChanged: (String value) => setState(() => _query = value),
+              onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: 'ابحث باسم المدينة أو الدولة...',
                 prefixIcon: const Icon(Icons.search_rounded),
@@ -54,7 +77,7 @@ class _CityPickerScreenState extends State<CityPickerScreen> {
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () {
                           _controller.clear();
-                          setState(() => _query = '');
+                          _onQueryChanged('');
                         },
                       ),
               ),
@@ -189,7 +212,10 @@ class _CityTile extends StatelessWidget {
                     children: <Widget>[
                       Text(city.name, style: theme.textTheme.titleSmall),
                       Text(
-                        methodTitle(suggestedMethodFor(city)),
+                        city.region.isEmpty
+                            ? methodTitle(suggestedMethodFor(city))
+                            : '${city.region} · '
+                                  '${methodTitle(suggestedMethodFor(city))}',
                         style: theme.textTheme.labelSmall,
                       ),
                     ],
