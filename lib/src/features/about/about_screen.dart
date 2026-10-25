@@ -5,7 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/arabic_text.dart';
 import '../../core/widgets/ornament_divider.dart';
 import '../../data/calculation_labels.dart';
-import '../../data/cities.dart';
+import '../../data/city_database.dart';
 import '../../settings/settings_controller.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -189,7 +189,11 @@ class _CurrentSetupCard extends StatelessWidget {
           _Line(label: 'مذهب العصر', value: madhabTitle(settings.madhab)),
           _Line(
             label: 'عدد المدن المتاحة',
-            value: '${toArabicNumerals(kCities.length)} مدينة',
+            value: '${formatCount(CityDatabase.cityCount)} مدينة',
+          ),
+          const _Line(
+            label: 'مصدر بيانات المدن',
+            value: 'Countries States Cities Database · ODbL',
           ),
           _Line(
             label: 'التنبيهات المجدولة',

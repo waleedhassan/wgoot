@@ -16,7 +16,7 @@ import 'package:wgoot/src/notifications/prayer_scheduler.dart';
 import 'package:wgoot/src/settings/settings_controller.dart';
 import 'package:wgoot/src/settings/settings_service.dart';
 
-City _city(String id) => kCities.firstWhere((City c) => c.id == id);
+City _city(String id) => kFeaturedCities.firstWhere((City c) => c.id == id);
 
 const MethodChannel _compassMethods = MethodChannel(
   'apps.waleed.sunnah.wgoot/compass',

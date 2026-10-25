@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/arabic_text.dart';
 import '../../core/widgets/ornament_divider.dart';
 import '../../data/cities.dart';
+import '../../data/city_database.dart';
 import '../../data/models/city.dart';
 import '../../settings/settings_controller.dart';
 import '../city/city_picker_screen.dart';
@@ -93,9 +94,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.search_rounded),
-              label: Text(
-                'تصفّح ${toArabicNumerals(kCities.length)} مدينة',
-              ),
+              label: Text('تصفّح ${formatCount(CityDatabase.cityCount)} مدينة'),
             ),
             const SizedBox(height: 10),
             TextButton(

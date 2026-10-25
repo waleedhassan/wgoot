@@ -24,7 +24,7 @@ The name comes from Imam Malik ibn Anas, who opened his Muwatta with "Kitab Wuqu
 
 ■ PRAYER TIMES
 • The five prayers plus sunrise, computed astronomically on the device itself.
-• More than 180 cities, with an Arabic search that ignores diacritics and normalises hamza spellings.
+• More than 152,000 cities worldwide, with an Arabic search that ignores diacritics and normalises hamza spellings.
 • Each city is computed in its own time zone, so the times stay correct even when your phone is somewhere else.
 
 ■ CALCULATION METHODS

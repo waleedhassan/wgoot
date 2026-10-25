@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wgoot/src/app.dart';
 import 'package:wgoot/src/core/theme/app_theme.dart';
 import 'package:wgoot/src/data/cities.dart';
+import 'package:wgoot/src/data/city_database.dart';
 import 'package:wgoot/src/data/models/prayer_slot.dart';
 import 'package:wgoot/src/features/about/about_screen.dart';
 import 'package:wgoot/src/features/adjust/adjustments_screen.dart';
@@ -63,6 +64,8 @@ final List<MethodCall> scheduledCalls = <MethodCall>[];
 void main() {
   final TestWidgetsFlutterBinding binding =
       TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() => CityDatabase.useFile('assets/db/cities.db'));
 
   setUp(() {
     scheduledCalls.clear();
@@ -150,6 +153,11 @@ void main() {
     await tester.pump();
 
     await tester.enterText(find.byType(TextField), 'اسطنبول');
+    // Let the debounce fire, then the database query finish for real.
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 500)),
+    );
     await tester.pump();
 
     expect(find.text('إسطنبول'), findsOneWidget);

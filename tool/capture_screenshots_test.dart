@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wgoot/src/core/theme/app_theme.dart';
 import 'package:wgoot/src/data/cities.dart';
+import 'package:wgoot/src/data/city_database.dart';
 import 'package:wgoot/src/data/models/city.dart';
 import 'package:wgoot/src/data/models/prayer_slot.dart';
 import 'package:wgoot/src/features/about/about_screen.dart';
@@ -55,7 +56,7 @@ const MethodChannel _notificationChannel = MethodChannel(
 const MethodChannel _timezoneChannel = MethodChannel('flutter_timezone');
 const MethodChannel _homeWidgetChannel = MethodChannel('home_widget');
 
-final City _riyadh = kCities.firstWhere((City city) => city.id == 'sa-riyadh');
+final City _riyadh = kFeaturedCities.firstWhere((City city) => city.id == 'sa-riyadh');
 
 Future<void> _loadFontFamily(String family, List<String> paths) async {
   final FontLoader loader = FontLoader(family);
@@ -195,6 +196,16 @@ Future<void> _save(WidgetTester tester, Viewport viewport, String name) async {
   });
 }
 
+/// Types [query] into the city picker and waits for the database search.
+Future<void> _search(WidgetTester tester, String query) async {
+  await tester.enterText(find.byType(TextField), query);
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 500)),
+  );
+  await tester.pump();
+}
+
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(seconds: 2));
@@ -254,6 +265,7 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
+    CityDatabase.useFile('assets/db/cities.db');
     HijriCalendar.setLocal('ar');
     await _loadFonts();
   });
@@ -301,8 +313,7 @@ void main() {
     await tester.pumpWidget(_frame(controller, const CityPickerScreen()));
     await tester.pump();
 
-    await tester.enterText(find.byType(TextField), 'ال');
-    await tester.pump();
+    await _search(tester, 'ال');
 
     await tester.drag(find.byType(ListView), const Offset(0, -128));
     await tester.pump();
@@ -350,8 +361,7 @@ void main() {
     await tester.pumpWidget(_frame(controller, const CityPickerScreen()));
     await tester.pump();
 
-    await tester.enterText(find.byType(TextField), 'السعودية');
-    await tester.pump();
+    await _search(tester, 'السعودية');
 
     await _scrollPastFlags(tester, kTablet7, 200);
   });

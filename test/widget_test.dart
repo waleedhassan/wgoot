@@ -1,9 +1,12 @@
 import 'package:adhan/adhan.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wgoot/src/core/utils/arabic_text.dart';
 import 'package:wgoot/src/data/cities.dart';
+import 'package:wgoot/src/data/city_database.dart';
+import 'package:wgoot/src/data/city_db_info.g.dart';
 import 'package:wgoot/src/data/hijri_date.dart';
 import 'package:wgoot/src/data/models/city.dart';
 import 'package:wgoot/src/data/models/prayer_slot.dart';
@@ -21,19 +24,21 @@ void main() {
 
   group('city data', () {
     test('ids are unique', () {
-      final Set<String> ids = kCities.map((City city) => city.id).toSet();
-      expect(ids.length, kCities.length);
+      final Set<String> ids = kFeaturedCities
+          .map((City city) => city.id)
+          .toSet();
+      expect(ids.length, kFeaturedCities.length);
     });
 
     test('coordinates are in range', () {
-      for (final City city in kCities) {
+      for (final City city in kFeaturedCities) {
         expect(city.latitude.abs() <= 90, isTrue, reason: city.id);
         expect(city.longitude.abs() <= 180, isTrue, reason: city.id);
       }
     });
 
     test('every time zone resolves', () {
-      for (final City city in kCities) {
+      for (final City city in kFeaturedCities) {
         expect(
           () => tz.getLocation(city.timeZone),
           returnsNormally,
@@ -43,9 +48,91 @@ void main() {
     });
 
     test('search matches city and country names', () {
-      expect(searchCities('مكه').map((City c) => c.id), contains('sa-makkah'));
-      expect(searchCities('الاردن').isNotEmpty, isTrue);
-      expect(searchCities('لا توجد مدينة بهذا الاسم'), isEmpty);
+      expect(
+        searchFeaturedCities('مكه').map((City c) => c.id),
+        contains('sa-makkah'),
+      );
+      expect(searchFeaturedCities('الاردن').isNotEmpty, isTrue);
+      expect(searchFeaturedCities('لا توجد مدينة بهذا الاسم'), isEmpty);
+    });
+  });
+
+  group('city database', () {
+    const String path = 'assets/db/cities.db';
+    late final Database db;
+
+    setUpAll(() {
+      db = sqlite3.open(path, mode: OpenMode.readOnly);
+      CityDatabase.useFile(path);
+    });
+    tearDownAll(() => db.close());
+
+    Future<List<String>> ids(String query) async =>
+        (await CityDatabase.search(query)).map((City c) => c.id).toList();
+
+    test('matches the generated info and the curated list', () {
+      expect(
+        db.select('SELECT count(*) FROM cities').single.columnAt(0),
+        kCityDbCount,
+      );
+      expect(db.userVersion, kCityDbVersion);
+      final Set<String> featured = <String>{
+        for (final Row row in db.select(
+          'SELECT id FROM cities WHERE featured = 1',
+        ))
+          row.columnAt(0) as String,
+      };
+      expect(featured, kFeaturedCities.map((City c) => c.id).toSet());
+    });
+
+    test('every time zone resolves', () {
+      for (final Row row in db.select('SELECT name FROM time_zones')) {
+        final String name = row.columnAt(0) as String;
+        expect(() => tz.getLocation(name), returnsNormally, reason: name);
+      }
+    });
+
+    test('coordinates are in range', () {
+      expect(
+        db
+            .select(
+              'SELECT count(*) FROM cities '
+              'WHERE abs(latitude) > 90 OR abs(longitude) > 180',
+            )
+            .single
+            .columnAt(0),
+        0,
+      );
+    });
+
+    test('ranks curated cities first', () async {
+      expect((await ids('مكه')).first, 'sa-makkah');
+      expect((await ids('istanbul')).first, 'tr-istanbul');
+      expect((await ids('London')).first, 'gb-london');
+    });
+
+    test('finds cities beyond the curated list', () async {
+      final List<City> bamako = await CityDatabase.search('Bamako');
+      expect(bamako.first.countryCode, 'ML');
+      expect(bamako.first.country, 'مالي');
+      expect((await CityDatabase.search('دوشنبه')).first.countryCode, 'TJ');
+      expect((await CityDatabase.search('São Paulo')).first.countryCode, 'BR');
+      expect((await CityDatabase.search('sao paulo')).first.countryCode, 'BR');
+      expect((await CityDatabase.search('Pristina')).first.countryCode, 'XK');
+      expect((await CityDatabase.search('Marawi')).first.countryCode, 'PH');
+    });
+
+    test('country search lists that country', () async {
+      final List<City> jordan = await CityDatabase.search('الاردن');
+      expect(jordan.first.id, 'jo-amman');
+      expect(
+        jordan.where((City c) => c.countryCode == 'JO').length,
+        greaterThan(10),
+      );
+    });
+
+    test('unknown names return nothing', () async {
+      expect(await CityDatabase.search('لا توجد مدينة بهذا الاسم'), isEmpty);
     });
   });
 

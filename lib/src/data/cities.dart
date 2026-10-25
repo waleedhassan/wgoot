@@ -3,7 +3,7 @@ import 'package:adhan/adhan.dart';
 import '../core/utils/arabic_text.dart';
 import 'models/city.dart';
 
-const List<City> kCities = <City>[
+const List<City> kFeaturedCities = <City>[
   // السعودية
   City(id: 'sa-makkah', name: 'مكة المكرمة', country: 'السعودية', countryCode: 'SA', latitude: 21.4225, longitude: 39.8262, timeZone: 'Asia/Riyadh'),
   City(id: 'sa-madinah', name: 'المدينة المنورة', country: 'السعودية', countryCode: 'SA', latitude: 24.4686, longitude: 39.6142, timeZone: 'Asia/Riyadh'),
@@ -139,6 +139,8 @@ const List<City> kCities = <City>[
   City(id: 'tr-antalya', name: 'أنطاليا', country: 'تركيا', countryCode: 'TR', latitude: 36.8969, longitude: 30.7133, timeZone: 'Europe/Istanbul'),
   City(id: 'tr-konya', name: 'قونية', country: 'تركيا', countryCode: 'TR', latitude: 37.8746, longitude: 32.4932, timeZone: 'Europe/Istanbul'),
   City(id: 'tr-gaziantep', name: 'غازي عنتاب', country: 'تركيا', countryCode: 'TR', latitude: 37.0662, longitude: 37.3833, timeZone: 'Europe/Istanbul'),
+  City(id: 'tr-trabzon', name: 'طرابزون', country: 'تركيا', countryCode: 'TR', latitude: 41.0027, longitude: 39.7168, timeZone: 'Europe/Istanbul'),
+  City(id: 'tr-sanliurfa', name: 'شانلي أورفا', country: 'تركيا', countryCode: 'TR', latitude: 37.1591, longitude: 38.7969, timeZone: 'Europe/Istanbul'),
   City(id: 'ir-tehran', name: 'طهران', country: 'إيران', countryCode: 'IR', latitude: 35.6892, longitude: 51.3890, timeZone: 'Asia/Tehran'),
   City(id: 'ir-mashhad', name: 'مشهد', country: 'إيران', countryCode: 'IR', latitude: 36.2605, longitude: 59.6168, timeZone: 'Asia/Tehran'),
   City(id: 'ir-isfahan', name: 'أصفهان', country: 'إيران', countryCode: 'IR', latitude: 32.6539, longitude: 51.6660, timeZone: 'Asia/Tehran'),
@@ -280,8 +282,10 @@ CalculationMethod suggestedMethodFor(City city) {
       CalculationMethod.muslim_world_league;
 }
 
+/// Looks up one of the curated [kFeaturedCities]; the full catalogue lives in
+/// `CityDatabase`.
 City? cityById(String id) {
-  for (final City city in kCities) {
+  for (final City city in kFeaturedCities) {
     if (city.id == id) {
       return city;
     }
@@ -289,16 +293,16 @@ City? cityById(String id) {
   return null;
 }
 
-List<City> searchCities(String query) {
-  final String needle = normalizeArabic(query);
+List<City> searchFeaturedCities(String query) {
+  final String needle = normalizeForSearch(query);
   if (needle.isEmpty) {
-    return kCities;
+    return kFeaturedCities;
   }
-  return kCities
+  return kFeaturedCities
       .where(
         (City city) =>
-            normalizeArabic(city.name).contains(needle) ||
-            normalizeArabic(city.country).contains(needle),
+            normalizeForSearch(city.name).contains(needle) ||
+            normalizeForSearch(city.country).contains(needle),
       )
       .toList(growable: false);
 }

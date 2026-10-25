@@ -40,6 +40,50 @@ String normalizeArabic(String input) {
       .toLowerCase();
 }
 
+const Map<String, String> _latinFolds = <String, String>{
+  'àáâãäåāăą': 'a',
+  'çćĉċč': 'c',
+  'ďđ': 'd',
+  'èéêëēĕėęě': 'e',
+  'ĝğġģ': 'g',
+  'ĥħ': 'h',
+  'ìíîïĩīĭįı': 'i',
+  'ĵ': 'j',
+  'ķ': 'k',
+  'ĺļľŀł': 'l',
+  'ñńņňŉ': 'n',
+  'òóôõöøōŏő': 'o',
+  'ŕŗř': 'r',
+  'śŝşšș': 's',
+  'ţťŧț': 't',
+  'ùúûüũūŭůűų': 'u',
+  'ŵ': 'w',
+  'ýÿŷ': 'y',
+  'źżž': 'z',
+};
+
+final Map<int, String> _latinFoldByRune = <int, String>{
+  for (final MapEntry<String, String> entry in _latinFolds.entries)
+    for (final int rune in entry.key.runes) rune: entry.value,
+  'ß'.runes.single: 'ss',
+  'æ'.runes.single: 'ae',
+  'œ'.runes.single: 'oe',
+};
+
+/// [normalizeArabic] that also folds accented Latin letters (`São` → `sao`),
+/// matching how tool/build_city_db.py indexes the city database.
+String normalizeForSearch(String input) {
+  final StringBuffer buffer = StringBuffer();
+  for (final int rune in input.toLowerCase().runes) {
+    // Combining marks, e.g. the dot left by lower-casing Turkish `İ`.
+    if (rune >= 0x0300 && rune <= 0x036F) {
+      continue;
+    }
+    buffer.write(_latinFoldByRune[rune] ?? String.fromCharCode(rune));
+  }
+  return normalizeArabic(buffer.toString());
+}
+
 const List<String> _arabicIndicDigits = <String>[
   '٠',
   '١',
@@ -129,8 +173,11 @@ String formatDegrees(double degrees, {int fractionDigits = 0}) {
 }
 
 /// Whole kilometres with Arabic thousands separators, e.g. `١٬٢٨٥`.
-String formatDistanceKm(double km) {
-  final String digits = km.round().toString();
+String formatDistanceKm(double km) => formatCount(km.round());
+
+/// An integer with Arabic thousands separators, e.g. `١٥٢٬١٦١`.
+String formatCount(int count) {
+  final String digits = count.toString();
   final StringBuffer buffer = StringBuffer();
   for (int i = 0; i < digits.length; i++) {
     if (i > 0 && (digits.length - i) % 3 == 0) {

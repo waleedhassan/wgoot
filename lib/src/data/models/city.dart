@@ -9,6 +9,7 @@ class City {
     required this.latitude,
     required this.longitude,
     required this.timeZone,
+    this.region = '',
   });
 
   final String id;
@@ -18,6 +19,10 @@ class City {
   final double latitude;
   final double longitude;
   final String timeZone;
+
+  /// State or province, used to tell same-named places apart. Empty for the
+  /// curated cities.
+  final String region;
 
   Coordinates get coordinates => Coordinates(latitude, longitude);
 
@@ -40,6 +45,7 @@ class City {
     'latitude': latitude,
     'longitude': longitude,
     'timeZone': timeZone,
+    if (region.isNotEmpty) 'region': region,
   };
 
   static City? fromJson(Map<String, Object?> json) {
@@ -63,6 +69,7 @@ class City {
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
       timeZone: timeZone,
+      region: json['region'] as String? ?? '',
     );
   }
 
